@@ -1,8 +1,9 @@
 require('dotenv').config();
 const { Telegraf } = require('telegraf');
 const admin = require('firebase-admin');
+const express = require('express'); // Новая зависимость
 
-// Парсим service account из .env (он в строке JSON)
+// Парсим service account из .env
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 // Инициализируем Firebase Admin SDK
@@ -39,23 +40,14 @@ bot.help((ctx) => {
     ctx.reply('Используйте /start для получения ссылки на вход/регистрации.');
 });
 
-// Экспортируем обработчик для Vercel (серверлесс-функция)
-module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).send('Method Not Allowed');
-    }
-    try {
-        await bot.handleUpdate(req.body);
-        res.status(200).send('OK');
-    } catch (error) {
-        console.error('Ошибка обработки обновления:', error);
-        res.status(500).send('Internal Server Error');
-    }
-};
+// Express app для обработки webhook
+const app = express();
+app.use(express.json());
+app.use(bot.webhookCallback('/telegram-webhook')); // Путь для webhook (можно изменить)
 
-// Устанавливаем вебхук (выполняется один раз при деплое)
+// Устанавливаем вебхук автоматически при запуске
 const setWebhook = async () => {
-    const webhookUrl = `${process.env.VERCEL_URL}/api/index`;
+    const webhookUrl = `${process.env.RENDER_URL}/telegram-webhook`; // Замени VERCEL_URL на RENDER_URL
     try {
         await bot.telegram.setWebhook(webhookUrl);
         console.log(`Вебхук установлен: ${webhookUrl}`);
@@ -64,5 +56,9 @@ const setWebhook = async () => {
     }
 };
 
-// Вызываем установку вебхука при запуске
-setWebhook();
+// Запуск сервера
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+    setWebhook(); // Устанавливаем webhook при старте
+});
