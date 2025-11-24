@@ -36,7 +36,7 @@ bot.start(async (ctx) => {
             await userRef.set({
                 'createdAt': firestore.SERVER_TIMESTAMP,
         'lastLoginAt': firestore.SERVER_TIMESTAMP,
-        'email': '',  # Будет заполнен в onboarding
+        'email': '',  
         'phone': '',
         'isVerified': False,
         'profileComplete': False,  # ✅ Профиль не заполнен
