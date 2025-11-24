@@ -34,30 +34,31 @@ bot.start(async (ctx) => {
         if (!userDoc.exists) {
             // ✅ ШАГ 3: Создать базовый документ для нового пользователя
             await userRef.set({
-                email: '', // Telegram users не имеют email
-                phone: '',
-                userType: '', // Будет заполнено в onboarding
-                isVerified: false,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
-                profile: {
-                    firstName: firstName,
-                    lastName: lastName,
-                    avatar: '', // Можно добавить позже из Telegram API
-                    city: '',
-                    country: '',
-                    dateOfBirth: '',
-                    gender: '',
-                    languages: [],
-                    timezone: '',
-                },
-                wallet: {
-                    balance: 0,
-                    currency: 'UZS',
-                    paymentMethods: [],
-                    transactions: [],
-                },
-                profileComplete: false, // ❌ FALSE - требуется onboarding!
+                'createdAt': firestore.SERVER_TIMESTAMP,
+        'lastLoginAt': firestore.SERVER_TIMESTAMP,
+        'email': '',  # Будет заполнен в onboarding
+        'phone': '',
+        'isVerified': False,
+        'profileComplete': False,  # ✅ Профиль не заполнен
+        'passwordSet': False,  # ✅ ВАЖНО: Пароль не установлен
+        'userType': '',  # Будет заполнен в onboarding
+        'profile': {
+            'firstName': first_name or '',
+            'lastName': last_name or '',
+            'avatar': photo_url or '',
+            'city': '',
+            'country': '',
+            'dateOfBirth': '',
+            'gender': '',
+            'languages': [],
+            'timezone': '',
+        },
+        'wallet': {
+            'balance': 0,
+            'currency': 'UZS',
+            'paymentMethods': [],
+            'transactions': [],
+        },
             });
             
             console.log(`✅ Created Firestore document for ${uid}`);
